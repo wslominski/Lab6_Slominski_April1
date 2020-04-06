@@ -1,6 +1,7 @@
 package com.example.lab6_slominski_april1;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     Button bSumbit, bRetrieve;
     EditText etInputName;
     String storeName;
+    LabDatabase labDatabase;
 
 
     @Override
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 storeName();
+                SubmitTask.execute();
 
             }
         });
@@ -41,15 +44,53 @@ public class MainActivity extends AppCompatActivity {
         bRetrieve.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                retrieveName();
+                RetrieveTask.execute();
 //                new RetrievePerson().execute();
             }
         });
 
+        labDatabase = Room.databaseBuilder(this, LabDatabase.class, DATABASE_NAME).build();
+
     }
     public void storeName() {
-        storeName = etInputName.getText().toString();
         Toast.makeText(this, etInputName.getText(), Toast.LENGTH_SHORT).show();
-//        new SubmitPerson().execute();
+//               storeName = etInputName.getText().toString();
+//               new SubmitPerson().execute();
+    }
+
+    public void retrieveName() {
+        Toast.makeText(this, etInputName.getText(), Toast.LENGTH_SHORT).show();
+    }
+
+    class SubmitTask extends AsyncTask<String,Void,Void>{
+        private ArrayAdapter<String> adapter;
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            labDatabase.personDao().insertPerson(person);
+            return null;
+        }
+    }
+
+    class RetrieveTask extends AsyncTask<Void, Void, LabDatabase> {
+
+        @Override
+        protected LabDatabase doInBackground(Void... voids) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(LabDatabase database) {
+            super.onPostExecute(database);
+            ArrayList<String> personNames = new ArrayList<>();
+            for (Person p: persons) {
+                personNames.add(p.getName());
+            }
+            Intent i = new Intent(context, PersonActivity.class);
+            i.putExtra("Persons", personNames);
+            getApplicationContext().startActivity(i);
+        }
     }
 
 
